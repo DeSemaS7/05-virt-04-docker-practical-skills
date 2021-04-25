@@ -76,17 +76,14 @@ EXPOSE ${agent_port}
 
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
-USER ${user}
 
+USER root
 COPY jenkins-support /usr/local/bin/jenkins-support
 COPY jenkins.sh /usr/local/bin/jenkins.sh
 COPY tini-shim.sh /bin/tini
 COPY jenkins-plugin-cli.sh /bin/jenkins-plugin-cli
+RUN chown -R ${user} /usr/local/bin/jenkins.sh && chmod +x /usr/local/bin/jenkins.sh
 
-
-
-# create shared class cache
-RUN /sbin/tini -- /usr/local/bin/jenkins.sh > /dev/null & sleep 20
-
+USER ${user}
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]
 
